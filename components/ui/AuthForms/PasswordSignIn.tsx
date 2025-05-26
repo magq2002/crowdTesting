@@ -1,11 +1,14 @@
 'use client';
 
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { signInWithPassword } from '@/utils/auth-helpers/server';
 import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Mail, Lock } from 'lucide-react';
 
 // Define prop type with allowEmail boolean
 interface PasswordSignInProps {
@@ -21,68 +24,114 @@ export default function PasswordSignIn({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    setIsSubmitting(true); // Disable the button while the request is being handled
+    setIsSubmitting(true);
     await handleRequest(e, signInWithPassword, router);
     setIsSubmitting(false);
   };
 
   return (
-    <div className="my-8">
+    <div className="space-y-6">
       <form
         noValidate={true}
-        className="mb-4"
         onSubmit={(e) => handleSubmit(e)}
+        className="space-y-4"
       >
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              name="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              className="w-full p-3 rounded-md bg-zinc-800"
-            />
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              placeholder="Password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              className="w-full p-3 rounded-md bg-zinc-800"
-            />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium text-gray-200">
+              Email
+            </Label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Mail className="h-5 w-5 text-gray-400" />
+              </div>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="nombre@ejemplo.com"
+                autoComplete="email"
+                required
+                className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
           </div>
-          <Button
-            variant="slim"
-            type="submit"
-            className="mt-1"
-            loading={isSubmitting}
-          >
-            Sign in
-          </Button>
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-sm font-medium text-gray-200">
+              Contraseña
+            </Label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-gray-400" />
+              </div>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                required
+                className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
         </div>
-      </form>
-      <p>
-        <Link href="/signin/forgot_password" className="font-light text-sm">
-          Forgot your password?
-        </Link>
-      </p>
-      {allowEmail && (
-        <p>
-          <Link href="/signin/email_signin" className="font-light text-sm">
-            Sign in via magic link
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              className="h-4 w-4 rounded border-gray-700 bg-gray-800/50 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+            />
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-400">
+              Recordarme
+            </label>
+          </div>
+          <Link
+            href="/signin/forgot_password"
+            className="text-sm font-medium text-blue-500 hover:text-blue-400"
+          >
+            ¿Olvidaste tu contraseña?
           </Link>
-        </p>
+        </div>
+
+        <Button
+          variant="default"
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+        >
+          {isSubmitting ? (
+            <div className="flex items-center justify-center">
+              <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
+            </div>
+          ) : (
+            'Iniciar Sesión'
+          )}
+        </Button>
+      </form>
+
+      {allowEmail && (
+        <div className="text-center">
+          <Link
+            href="/signin/email_signin"
+            className="text-sm font-medium text-gray-400 hover:text-gray-300"
+          >
+            Iniciar sesión con enlace mágico
+          </Link>
+        </div>
       )}
-      <p>
-        <Link href="/signin/signup" className="font-light text-sm">
-          Don't have an account? Sign up
+
+      <div className="text-center">
+        <Link
+          href="/signin/signup"
+          className="text-sm font-medium text-gray-400 hover:text-gray-300"
+        >
+          ¿No tienes una cuenta? <span className="text-blue-500">Regístrate</span>
         </Link>
-      </p>
+      </div>
     </div>
   );
 }

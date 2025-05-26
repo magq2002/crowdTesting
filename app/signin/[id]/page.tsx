@@ -28,25 +28,18 @@ export default async function SignIn({
   const viewTypes = getViewTypes();
   const redirectMethod = getRedirectMethod();
 
-  // Declare 'viewProp' and initialize with the default value
   let viewProp: string;
 
-  // Assign url id to 'viewProp' if it's a valid string and ViewTypes includes it
   if (typeof params.id === 'string' && viewTypes.includes(params.id)) {
     viewProp = params.id;
   } else {
-    const preferredSignInView =
-      cookies().get('preferredSignInView')?.value || null;
+    const preferredSignInView = cookies().get('preferredSignInView')?.value || null;
     viewProp = getDefaultSignInView(preferredSignInView);
     return redirect(`/signin/${viewProp}`);
   }
 
-  // Check if the user is already logged in and redirect to the account page if so
   const supabase = createClient();
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (user && viewProp !== 'update_password') {
     return redirect('/');
@@ -54,22 +47,34 @@ export default async function SignIn({
     return redirect('/signin');
   }
 
+  const titles = {
+    password_signin: 'Bienvenido de nuevo',
+    email_signin: 'Iniciar sesión con email',
+    forgot_password: 'Recuperar contraseña',
+    update_password: 'Actualizar contraseña',
+    signup: 'Crear una cuenta'
+  };
+
+  const descriptions = {
+    password_signin: 'Ingresa tus credenciales para continuar',
+    email_signin: 'Te enviaremos un enlace mágico a tu correo',
+    forgot_password: 'Te enviaremos instrucciones para recuperar tu contraseña',
+    update_password: 'Ingresa tu nueva contraseña',
+    signup: 'Únete a nuestra plataforma de testing colaborativo'
+  };
+
   return (
-    <div className="flex justify-center height-screen-helper">
-      <div className="flex flex-col justify-between max-w-lg p-3 m-auto w-80 ">
-        <div className="flex justify-center pb-12 ">
-          <Logo width="64px" height="64px" />
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md mx-auto">
+        <div className="flex justify-center mb-8">
+          <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center">
+            <span className="text-2xl font-bold text-white">F</span>
+          </div>
         </div>
+
         <Card
-          title={
-            viewProp === 'forgot_password'
-              ? 'Reset Password'
-              : viewProp === 'update_password'
-                ? 'Update Password'
-                : viewProp === 'signup'
-                  ? 'Sign Up'
-                  : 'Sign In'
-          }
+          title={titles[viewProp as keyof typeof titles]}
+          description={descriptions[viewProp as keyof typeof descriptions]}
         >
           {viewProp === 'password_signin' && (
             <PasswordSignIn
@@ -101,7 +106,7 @@ export default async function SignIn({
             viewProp !== 'signup' &&
             allowOauth && (
               <>
-                <Separator text="Third-party sign-in" />
+                <Separator text="O continúa con" />
                 <OauthSignIn />
               </>
             )}
